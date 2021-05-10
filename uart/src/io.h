@@ -22,7 +22,7 @@ enum {
     AUX_MU_STAT_REG = AUX_BASE + 100,
     AUX_MU_BAUD_REG = AUX_BASE + 104,
     AUX_UART_CLOCK  = 500000000,
-    UART_MAX_QUEUE  = 16 * 1024
+    UART_MAX_QUEUE  = 512
 };
 
 enum {
