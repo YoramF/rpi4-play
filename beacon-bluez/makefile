@@ -5,11 +5,11 @@ GCCFLAGS = -O3 -s
 GCCFLAGS_D = -g
 
 beacon:	$(OFILES)
-	gcc $(GCCFLAGS) -o ./bin/beacon $(OFILES)
+	gcc $(GCCFLAGS) -o ./bin/beacon $(OFILES) -lbluetooth
 
 beacon_d: $(OFILES_D)
-	gcc $(GCCFLAGS_D) -o ./bin/beacon_d $(OFILES_D)
-
+	gcc $(GCCFLAGS_D) -o ./bin/beacon_d $(OFILES_D) -lbluetooth
+ 
 ./obj/%.o: ./src/%.c
 	gcc $(GCCFLAGS) -c $< -o $@
 
