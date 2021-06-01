@@ -6,7 +6,6 @@
 */
 
 #include <stdlib.h>
-#include <errno.h>
 #include <stdio.h>
 #include "list.h"
 

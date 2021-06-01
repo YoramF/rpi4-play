@@ -6,10 +6,8 @@
 #ifndef FLD_H_
 #define FLD_H_
 
-#include <stdio.h>
 #include <sys/types.h>
 #include <limits.h>
-#include <stdlib.h>
 #include <time.h>
 #include "list.h"
 

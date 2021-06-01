@@ -1,6 +1,6 @@
 /*
 syncf.c - sunchronize files in source folder with same files on target folders.
-Calling syntax: syncf [-l log-file] [-f shell-script-file] [-e] <source-Dir> <target-dir1>...<target-dirN> 
+Calling syntax: syncf [-s shell-script-file] [-v] [-e] <source-Dir> <target-dir1>...<target-dirN> 
 The program synchronize only files with that exists on both source and target folders.
 The synchronization takes place only if the file on source-Dir is newer than the same
 file on targer-DirX
@@ -15,6 +15,7 @@ Note! non-ASCI file names will be ignored
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
 #include "list.h"
@@ -22,9 +23,10 @@ Note! non-ASCI file names will be ignored
 
 #define MAX_TARGETS 20
 
-const char *cmd = "$syncf  [-l <log_file>] [-f <script_file>] [-e] <source> <target1> [<target2>..<targetN>]";
+const char *cmd = "$syncf  syncf [-s shell-script-file] [-v] [-e] <source-Dir> <target-dir1>...<target-dirN>";
 const char *help = "Default script file name: syncf.sh";
 const char *def_script_fn = "syncf.sh";
+const char *verbose_s = "-v";
 
 static void print_files (l_node *fe) {
     f_entry *f;
@@ -38,9 +40,9 @@ static int cm_fe (f_entry *s, f_entry *t) {
 }
 
 static int print_error () {
-    printf("wrong input\n");
-    printf("%s\n", cmd);
-    printf("%s\n", help);
+    fprintf(stderr,"wrong input\n");
+    fprintf(stderr,"%s\n", cmd);
+    fprintf(stderr,"%s\n", help);
     return -1;
 }
 
@@ -60,23 +62,23 @@ int main(int argc, char *argv[])
     f_entry *sfe, *tfe;     // source and target file entries
     FILE *script_fp = NULL;
     char *script_fn = (char *)def_script_fn;
-    char log_str[PATH_MAX+6] = {'\0'};
     char *sd_name = NULL;
     char *td_names[MAX_TARGETS];
     int td_ind = 0;
     bool execute = false;
+    char *verbose = "\0";
 
     // get commad line input and initilalize internal data structures
 	if (argc > 1) {
         while (optind < argc) {
             if (opt != -1) {
-                if ((opt = getopt(argc, argv, "f:l:e")) != -1) {
+                if ((opt = getopt(argc, argv, "s:ve")) != -1) {
                     switch (opt) {
-                        case 'f':
+                        case 's':
                             script_fn = optarg;
                             break;
-                        case 'l':
-                            sprintf(log_str, "-v >> %s", optarg);
+                        case 'v':
+                            verbose = (char *)verbose_s;
                             break;
                         case 'e':
                             execute = true;
@@ -128,7 +130,6 @@ int main(int argc, char *argv[])
     fprintf(script_fp, "#!/bin/bash\n");
     fprintf(script_fp, "# Command inputs:\n");
     fprintf(script_fp, "# Script file name: %s\n", script_fn);
-    fprintf(script_fp, "# Logging?: %s\n", log_str[0] == '\0'? "No": (char *)&log_str[6]);
     fprintf(script_fp, "# Source folder: %s\n", sd_name);
     fprintf(script_fp, "# Target folders:\n");
     for (int i = 0; i < td_ind; i++)
@@ -156,9 +157,9 @@ int main(int argc, char *argv[])
             if ((tfe = find(td->f_entries, sfe, (int (*)(void *, void *))&cm_fe)) != NULL) {
                 if (IS_NEWER(sfe, tfe)) {
 #ifdef WINDOWS
-                    fprintf(script_fp, "cp \"%s\\%s\" \"%s\\%s\" %s\n", sd->d_name, sfe->f_n, td->d_name, tfe->f_n, log_str);
+                    fprintf(script_fp, "cp -p %s \"%s\\%s\" \"%s\\%s\"\n", verbose, sd->d_name, sfe->f_n, td->d_name, tfe->f_n);
 #else
-                    fprintf(script_fp, "cp %s/%s %s/%s %s\n", sd->d_name, sfe->f_n, td->d_name, tfe->f_n, log_str);
+                    fprintf(script_fp, "cp -p %s %s/%s %s/%s\n", verbose, sd->d_name, sfe->f_n, td->d_name, tfe->f_n);
 #endif //WINDOWS
                 }
             }

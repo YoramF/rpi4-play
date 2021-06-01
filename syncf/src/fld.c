@@ -6,12 +6,12 @@
 
 #include <dirent.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <errno.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <limits.h>
-#include <errno.h>
+#include <stdio.h>
 #include "fld.h"
 
 static void rm_fe (f_entry *fe) {
@@ -60,7 +60,8 @@ directory *build_dlist (char *path) {
 	}
 
 	drh->f_entries = NULL;
-	// store directory information
+	// store directory information, but as a default set it to path
+	drh->d_name = path;
 	if ((drh->d_name = realpath(path, NULL)) == NULL)
 		return fail(drh, "realpath");
 

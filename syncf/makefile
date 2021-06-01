@@ -1,7 +1,7 @@
 CFILES = $(wildcard ./src/*.c)
 OFILES = $(CFILES:./src/%.c=./obj/%.o)
 OFILES_D = $(CFILES:./src/%.c=./obj/%_d.o)
-GCCFLAGS = -O3
+GCCFLAGS = -O2
 GCCFLAGS_D = -g
 
 syncf: $(OFILES)
